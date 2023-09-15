@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+    <!--  Properties to set LOGGER -->
+    <property name="HIS" value="his"/>
+    <!-- Property to set console appender -->
+    <property name="CONSOLE_APPENDER_NAME" value="console"/>
+
+    <!-- Property to set log level -->
+    <property name="LOG_LEVEL" value="DEBUG"/>
+
+    <!-- Properties to set log pattern -->
+    <property name="APPLICATION_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %X{serviceName} - %X{queryId} - %X{client} - %X{traceId} :: %msg%n"/>
+    <property name="WEB_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %X{serviceName} - %X{queryId} - %X{client} - %X{traceId} :: %msg%n"/>
+
+    <!--  Properties to set AIR-WEB file appender. -->
+    <property name="AIR_WEB_FILE_APPENDER_NAME" value="air.web"/>
+    <property name="AIR_WEB_LOG_FILE" value="logs/air-gate-admin-web/air-gate-admin-web.log"/>
+    <property name="AIR_WEB_ROLLING_LOG_FILE" value="logs/air-gate-admin-web/air-gate-admin-web_%d{yyyy-MM-dd}-%i.log.gz"/>
+
+    <!-- Console Logging pattern -->
+    <appender name="${CONSOLE_APPENDER_NAME}" class="ch.qos.logback.core.ConsoleAppender" additivity="false">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
+                    <prettyPrint>false</prettyPrint>
+                </jsonFormatter>
+                <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
+                </timestampFormat>
+                <appendLineSeparator>true</appendLineSeparator>
+            </layout>
+        </encoder>
+    </appender>
+
+    <!-- File Logging pattern -->
+    <appender name="${AIR_WEB_FILE_APPENDER_NAME}"
+        class="ch.qos.logback.core.rolling.RollingFileAppender"
+        additivity="false">
+        <file>${AIR_WEB_LOG_FILE}</file>
+        <encoder
+            class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>${APPLICATION_LOG_PATTERN}</Pattern>
+        </encoder>
+        <rollingPolicy
+            class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Rollover daily and when the file reaches 2 MegaBytes -->
+            <fileNamePattern>${AIR_WEB_ROLLING_LOG_FILE}
+            </fileNamePattern>
+            <cleanHistoryOnStart>false</cleanHistoryOnStart>
+            <maxFileSize>2MB</maxFileSize>
+            <maxHistory>1</maxHistory>
+            <totalSizeCap>0</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Set logger definitions -->
+    <logger name="${HIS}" level="${LOG_LEVEL}">
+        <appender-ref ref="${AIR_WEB_FILE_APPENDER_NAME}" />
+    </logger>
+
+    <!-- MyBatis log -->
+     <logger name="com.henryxi.mybatis.log.mapper" additivity="false"> <!-- <==== define the log level for your own mapper -->
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="${CONSOLE_APPENDER_NAME}" />
+    </root>
+</included>
